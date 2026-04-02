@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Daira.Application\Daira.Application.csproj" />
     <ProjectReference Include="..\Daira.Domain\Daira.Domain.csproj" />
   </ItemGroup>
 
