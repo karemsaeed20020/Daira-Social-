@@ -4,6 +4,7 @@ using Daira.Application.Interfaces;
 using Daira.Application.Interfaces.Auth;
 using Daira.Application.Response.Auth;
 using Daira.Infrastructure.Settings;
+using Daira.Infrastructure.Specefication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -144,5 +145,90 @@ namespace Daira.Infrastructure.Services.AuthService
                  refreshToken,
                 roles);
         }
+
+        public Task<RefreshTokenResponse> RefreshTokenAsync(RefreshTokenDto refreshTokenDto)
+        {
+            throw new NotImplementedException();
+        }
+        // Logout User
+        public async Task<LogoutResponse> LogoutAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return LogoutResponse.Failed("User Not Found");
+            }
+            var spec = new RefreshTokenSpecification(rt => rt.UserId == user.Id && rt.IsRevoked == false && rt.ExpiresAt >= DateTime.UtcNow);
+            var refreshTokens = await _unitOfWork.Repository<RefreshToken>().GetAllWithSpec(spec);
+            foreach (var token in refreshTokens)
+            {
+                token.IsRevoked = true;
+                token.RevokedAt = DateTime.UtcNow;
+            }
+            await _unitOfWork.CommitAsync();
+            return LogoutResponse.Succedd();
+        }
+        // Forgot Password
+        public async Task<ForgetPasswordResponse> ForgetPasswordAsync(ForgotPasswordDto forgotPasswordDto)
+        {
+            var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+            if (user is null || !user.EmailConfirmed)
+            {
+
+                return ForgetPasswordResponse.Success();
+            }
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            var resetLink = $"{_emailSettings.BaseUrl}/api/auth/reset-password?email={UrlEncoder.Default.Encode(user.Email!)}&token={encodedToken}";
+            try
+            {
+                await _emailService.SendPasswordResetAsync(user.Email!, resetLink);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send password reset email to {Email}", user.Email);
+            }
+            return ForgetPasswordResponse.Success();
+        }
+
+        public async Task<ResetPasswordResponse> ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
+        {
+            var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
+            if (user is null)
+            {
+                return ResetPasswordResponse.Failure("User Not Found.");
+            }
+            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(resetPasswordDto.Token));
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, resetPasswordDto.NewPassword);
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description);
+                return ResetPasswordResponse.Failure(errors);
+            }
+            await LogoutAsync(user.Id);
+            return ResetPasswordResponse.Success();
+        }
+
+        //Resend Email Confirmation
+        public async Task<ResendConfirmationResponse> ResendEmailAsync(ResendEmailConfirmationDto resendEmailConfirmationDto)
+        {
+            var user = await _userManager.FindByEmailAsync(resendEmailConfirmationDto.Email);
+            if (user is null) return ResendConfirmationResponse.Failure("User not Found");
+            if (!user.EmailConfirmed) return ResendConfirmationResponse.AlreadyConfirmed();
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+            var confirmationLink = $"{_emailSettings.BaseUrl}/api/auth/confirm-email?email={UrlEncoder.Default.Encode(user.Email!)}&token={encodedToken}";
+
+            try
+            {
+                await _emailService.SendEmailConfirmationAsync(user.Email!, confirmationLink);
+            }
+            catch
+            {
+                _logger.LogError("Failed to send confirmation email to {Email}", user.Email);
+            }
+            return ResendConfirmationResponse.Success(user.Email!);
+        }
+
     }
 }

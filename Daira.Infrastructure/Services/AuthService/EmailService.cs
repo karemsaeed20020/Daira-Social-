@@ -85,5 +85,40 @@ namespace Daira.Infrastructure.Services.AuthService
             </html>";
             await SendEmailAsync(email, subject, body);
         }
+
+        public async Task SendPasswordResetAsync(string email, string resetLink)
+        {
+            var subject = "Reset Your Password";
+            var body = $@"
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset='UTF-8'>
+                <title>Password Reset</title>
+            </head>
+            <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
+                    <h2 style='color: #2563eb;'>Password Reset Request</h2>
+                    <p>We received a request to reset your password. Click the button below to create a new password:</p>
+                    <div style='text-align: center; margin: 30px 0;'>
+                        <a href='{resetLink}' 
+                           style='background-color: #2563eb; color: white; padding: 12px 30px; 
+                                  text-decoration: none; border-radius: 5px; display: inline-block;'>
+                            Reset Password
+                        </a>
+                    </div>
+                    <p>If the button doesn't work, copy and paste this link into your browser:</p>
+                    <p style='word-break: break-all; color: #666;'>{resetLink}</p>
+                    <p style='color: #dc2626; font-weight: bold;'>This link will expire in 24 hours.</p>
+                    <hr style='border: none; border-top: 1px solid #eee; margin: 20px 0;'>
+                    <p style='font-size: 12px; color: #666;'>
+                        If you didn't request a password reset, please ignore this email or contact support.
+                    </p>
+                </div>
+            </body>
+            </html>";
+
+            await SendEmailAsync(email, subject, body);
+        }
     }
 }
