@@ -1,15 +1,9 @@
 ﻿using Daira.Application.Interfaces;
 using Daira.Infrastructure.Persistence.DbContext;
 using Daira.Infrastructure.Repositories.MainRepository;
-using Microsoft.AspNet.Identity;
 using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Daira.Infrastructure.UnitOfWork
+namespace Daira.Infrastructure.Persistence
 {
     public class UnitOfWork(DairaDbContext context) : IUnitOfWork
     {
