@@ -8,3 +8,14 @@
   <img src="https://img.shields.io/badge/SignalR-Real--Time-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt="SignalR" />
   <img src="https://img.shields.io/badge/Swagger-OpenAPI-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger" />
 </p>
+
+<!-- Project Title -->
+<h1 align="center">🌐 Daira</h1>
+
+<p align="center">
+  <strong>A Modern Social Media Platform Backend Built with Clean Architecture</strong>
+</p>
+
+<p align="center">
+  Daira is a production-ready, enterprise-grade social media platform backend API built with ASP.NET Core 9.0, following Clean Architecture principles and SOLID design patterns. The platform provides comprehensive social networking features including real-time messaging, post management, user interactions, and notification systems, all designed for scalability, maintainability, and extensibility.
+</p>
