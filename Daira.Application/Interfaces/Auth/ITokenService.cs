@@ -1,4 +1,5 @@
 ﻿using Daira.Domain.Entities.AuthModel;
+using System.Security.Claims;
 
 namespace Daira.Application.Interfaces.Auth
 {
@@ -8,5 +9,6 @@ namespace Daira.Application.Interfaces.Auth
         string GenerateRefreshToken();
         DateTime GetAccessTokenExpiration();
         DateTime GetRefreshTokenExpiration();
+        ClaimsPrincipal? GetPrincipalFromExpiredToken(string token);
     }
 }

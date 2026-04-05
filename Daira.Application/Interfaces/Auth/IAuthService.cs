@@ -13,5 +13,8 @@ namespace Daira.Application.Interfaces.Auth
         Task<ForgetPasswordResponse> ForgetPasswordAsync(ForgotPasswordDto forgotPasswordDto);
         Task<ResetPasswordResponse> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
         Task<ResendConfirmationResponse> ResendEmailAsync(ResendEmailConfirmationDto resendEmailConfirmationDto);
+        Task<ChangePasswordResponse> ChangePasswordAsync(string userId, ChangePasswordDto changePasswordDto);
+        Task<UserProfileResponse> GetUserProfileAsync(string userId);
+        Task<UpdateProfileResponse> UpdateProfileAsync(string userId, UpdateProfileDto updateProfileDto);
     }
 }

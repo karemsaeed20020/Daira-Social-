@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 
@@ -146,9 +147,36 @@ namespace Daira.Infrastructure.Services.AuthService
                 roles);
         }
 
-        public Task<RefreshTokenResponse> RefreshTokenAsync(RefreshTokenDto refreshTokenDto)
+        public async Task<RefreshTokenResponse> RefreshTokenAsync(RefreshTokenDto refreshTokenDto)
         {
-            throw new NotImplementedException();
+            var principal = _tokenService.GetPrincipalFromExpiredToken(refreshTokenDto.Token);
+            if (principal is null) return RefreshTokenResponse.Failure("Invalid access token.");
+            var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId is null) return RefreshTokenResponse.Failure("Invalid access token.");
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null) return RefreshTokenResponse.Failure("User not found.");
+            var specRefreshToken = new RefreshTokenSpecification(rt => rt.Token == refreshTokenDto.RefreshToken && rt.UserId == user.Id && rt.ExpiresAt >= DateTime.UtcNow && rt.IsRevoked == false);
+            var getRefreshToken = await _unitOfWork.Repository<RefreshToken>().GetByIdSpecTracked(specRefreshToken);
+            if (getRefreshToken is null) return RefreshTokenResponse.Failure("Invalid refresh token.");
+            var roles = await _userManager.GetRolesAsync(user);
+            var newAccessToken = await _tokenService.GenerateAccessTokenAsync(user, roles);
+            var newRefeshToken = _tokenService.GenerateRefreshToken();
+            var refreshTokenrow = new RefreshToken
+            {
+                Token = newRefeshToken,
+                ExpiresAt = _tokenService.GetRefreshTokenExpiration(),
+                UserId = user.Id,
+            };
+            getRefreshToken.IsRevoked = true;
+            getRefreshToken.RevokedAt = DateTime.UtcNow;
+            _unitOfWork.Repository<RefreshToken>().Update(getRefreshToken);
+            await _unitOfWork.Repository<RefreshToken>().AddAsync(refreshTokenrow);
+            await _unitOfWork.CommitAsync();
+            return RefreshTokenResponse.Success(
+                newAccessToken,
+                newRefeshToken,
+                _tokenService.GetAccessTokenExpiration(),
+                _tokenService.GetRefreshTokenExpiration());
         }
         // Logout User
         public async Task<LogoutResponse> LogoutAsync(string userId)
@@ -230,5 +258,50 @@ namespace Daira.Infrastructure.Services.AuthService
             return ResendConfirmationResponse.Success(user.Email!);
         }
 
+        public async Task<ChangePasswordResponse> ChangePasswordAsync(string userId, ChangePasswordDto changePasswordDto)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null)
+            {
+                return ChangePasswordResponse.Failure("User Not Found.");
+            }
+            var result = await _userManager.ChangePasswordAsync(user, changePasswordDto.CurrentPassword, changePasswordDto.NewPassword);
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description);
+                return ChangePasswordResponse.Failure(errors);
+            }
+            // var specRefreshTokens = new RefreshTokenSpecification(rt => rt.UserId == user.Id);
+            await LogoutAsync(userId);
+            _logger.LogInformation("Password changed for user {UserId} , Plz Login again", userId);
+            return ChangePasswordResponse.Success();
+        }
+        // Get User Profile
+        public async Task<UserProfileResponse> GetUserProfileAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null) return UserProfileResponse.Failure("User Not Found.");
+            return _mapper.Map<UserProfileResponse>(user); ;
+        }
+        // Update User Profile
+        public async Task<UpdateProfileResponse> UpdateProfileAsync(string userId, UpdateProfileDto updateProfileDto)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null) return UpdateProfileResponse.Failure("User Not Found.");
+            user.FirstName = updateProfileDto.FirstName;
+            user.LastName = updateProfileDto.LastName;
+            user.PhoneNumber = updateProfileDto.PhoneNumber;
+            user.PictureUrl = updateProfileDto.ProfilePicture;
+            user.UpdatedAt = DateTime.UtcNow;
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description);
+                return UpdateProfileResponse.Failure(string.Join(", ", errors));
+            }
+            _logger.LogInformation("Profile updated for user {UserId}", userId);
+            return UpdateProfileResponse.Success();
+
+        }
     }
 }
