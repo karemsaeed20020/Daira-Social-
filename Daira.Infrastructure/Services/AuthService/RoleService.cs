@@ -36,9 +36,29 @@ namespace Daira.Infrastructure.Services.AuthService
             return RoleResponse.Success(MapToDto(role), $"Role '{dto.Name}' created successfully.");
         }
 
-        public Task<RoleResponse> DeleteRoleAsync(string roleId)
+        public async Task<RoleResponse> DeleteRoleAsync(string roleId)
         {
-            throw new NotImplementedException();
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null)
+            {
+                return RoleResponse.Failure("Role not found.");
+            }
+            // Check if any users are assigned to this role
+            var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name!);
+            if (usersInRole.Any())
+            {
+                return RoleResponse.Failure($"Cannot delete role '{role.Name}'. It is assigned to {usersInRole.Count} user(s).");
+            }
+
+            var result = await _roleManager.DeleteAsync(role);
+            if (!result.Succeeded)
+            {
+                return RoleResponse.Failure(result.Errors.Select(e => e.Description));
+            }
+
+            _logger.LogInformation("Deleted role: {RoleName}", role.Name);
+            return RoleResponse.Success(MapToDto(role), $"Role '{role.Name}' deleted successfully.");
+
         }
 
         public async Task<RoleListResponse> GetAllRolesAsync()
@@ -130,6 +150,90 @@ namespace Daira.Infrastructure.Services.AuthService
 
             _logger.LogInformation("Updated role: {RoleId}", roleId);
             return RoleResponse.Success(MapToDto(role), "Role updated successfully.");
+        }
+
+        public async Task<UserRolesResponse> GetUserRolesAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null) return UserRolesResponse.Failure("User not found.");
+            var roles = await _userManager.GetRolesAsync(user);
+            return UserRolesResponse.Success(userId, user.Email!, user.FullName, roles);
+        }
+
+        public async Task<AssignRoleResponse> AssignRoleToUserAsync(string userId, string roleName)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return AssignRoleResponse.Failure("User not found.");
+            }
+
+            if (!await _roleManager.RoleExistsAsync(roleName))
+            {
+                return AssignRoleResponse.Failure($"Role '{roleName}' does not exist.");
+            }
+
+            if (await _userManager.IsInRoleAsync(user, roleName))
+            {
+                return AssignRoleResponse.Failure($"User is already in role '{roleName}'.");
+            }
+
+            var result = await _userManager.AddToRoleAsync(user, roleName);
+            if (!result.Succeeded)
+            {
+                return AssignRoleResponse.Failure(result.Errors.First().Description);
+            }
+
+            _logger.LogInformation("Assigned role {RoleName} to user {UserId}", roleName, userId);
+            return AssignRoleResponse.AssignSuccess(userId, roleName);
+        }
+        // Assign Role to User
+        public async Task<AssignRoleResponse> RemoveRoleFromUserAsync(string userId, string roleName)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return AssignRoleResponse.Failure("User not found.");
+            }
+
+            if (!await _userManager.IsInRoleAsync(user, roleName))
+            {
+                return AssignRoleResponse.Failure($"User is not in role '{roleName}'.");
+            }
+
+            var result = await _userManager.RemoveFromRoleAsync(user, roleName);
+            if (!result.Succeeded)
+            {
+                return AssignRoleResponse.Failure(result.Errors.First().Description);
+            }
+
+            _logger.LogInformation("Removed role {RoleName} from user {UserId}", roleName, userId);
+            return AssignRoleResponse.RemoveSuccess(userId, roleName);
+        }
+
+        public async Task<UsersInRoleResponse> GetUsersInRoleAsync(string roleName)
+        {
+            if (!await _roleManager.RoleExistsAsync(roleName))
+            {
+                return UsersInRoleResponse.Failure($"Role '{roleName}' does not exist.");
+            }
+
+            var users = await _userManager.GetUsersInRoleAsync(roleName);
+
+            var userDtos = new List<UserRoleDto>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                userDtos.Add(new UserRoleDto
+                {
+                    UserId = user.Id,
+                    Email = user.Email!,
+                    FullName = user.FullName,
+                    Roles = roles.ToList()
+                });
+            }
+
+            return UsersInRoleResponse.Success(roleName, userDtos);
         }
     }
 }
