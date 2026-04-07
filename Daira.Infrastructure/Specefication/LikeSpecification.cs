@@ -1,0 +1,30 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Daira.Infrastructure.Specefication
+{
+    public class LikeSpecification : BaseSpecefication<Like>
+    {
+        public LikeSpecification() : base()
+        {
+            AddIncludes();
+        }
+        public LikeSpecification(Guid id) : base(l => l.Id == id)
+        {
+            AddIncludes();
+        }
+        public LikeSpecification(Expression<Func<Like, bool>> expression) : base(expression)
+        {
+            AddIncludes();
+        }
+        void AddIncludes()
+        {
+            Includes.Add(l => l.Post);
+            Includes.Add(l => l.AppUser);
+        }
+    }
+}

@@ -1,5 +1,6 @@
 ﻿using Daira.Application.DTOs.PostModule;
 using Daira.Application.Interfaces.PostModule;
+using Daira.Application.Response.LikeModule;
 using Daira.Application.Response.PostModule;
 using Daira.Application.Shared;
 using Microsoft.AspNetCore.Authorization;
@@ -100,5 +101,52 @@ namespace Daira.Api.Controllers
             if (!result.Succeeded) return BadRequest(result);
             return Ok(result);
         }
+
+        //Like Post
+        [HttpPost("like-post/{id}")]
+        [ProducesResponseType(typeof(ResultResponse<LikeResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> LikePost(Guid id)
+        {
+            var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+            var result = await _postService.LikePostAsync(user, id);
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
+        }
+
+        //UnLike Post
+        [HttpDelete("Unlike-post/{id}")]
+        [ProducesResponseType(typeof(ResultResponse<LikeResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UnLikePost(Guid id)
+        {
+            var user = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (user is null)
+            {
+                return Unauthorized();
+            }
+            var result = await _postService.UnLikePostAsync(user, id);
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
+        }
+
+        //Get Post Likes
+        [HttpGet("post-likes/{id}")]
+        [ProducesResponseType(typeof(ResultResponse<LikeResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPostLikes(Guid id)
+        {
+            var result = await _postService.GetPostLikesAsync(id);
+            if (!result.Succeeded) return BadRequest(result);
+            return Ok(result);
+        }
+
     }
 }
