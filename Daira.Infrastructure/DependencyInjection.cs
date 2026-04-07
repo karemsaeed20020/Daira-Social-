@@ -1,8 +1,10 @@
 ﻿using Daira.Application.Interfaces;
 using Daira.Application.Interfaces.Auth;
+using Daira.Application.Interfaces.PostModule;
 using Daira.Infrastructure.Persistence;
 using Daira.Infrastructure.Persistence.DbContext;
 using Daira.Infrastructure.Services.AuthService;
+using Daira.Infrastructure.Services.PostService;
 using Daira.Infrastructure.Settings;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -89,6 +91,7 @@ namespace Daira.Infrastructure
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IPostService, PostService>();
 
             // Configure email settings
             services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
