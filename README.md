@@ -19,3 +19,36 @@
 <p align="center">
   Daira is a production-ready, enterprise-grade social media platform backend API built with ASP.NET Core 9.0, following Clean Architecture principles and SOLID design patterns. The platform provides comprehensive social networking features including real-time messaging, post management, user interactions, and notification systems, all designed for scalability, maintainability, and extensibility.
 </p>
+
+---
+
+## 📑 Table of Contents
+
+- [Overview](#-overview)
+- [Key Highlights](#-key-highlights)
+- [Features](#-features)
+  - [Authentication & Authorization](#authentication--authorization)
+  - [User Management](#user-management)
+  - [Posts & Feed](#posts--feed)
+  - [Social Interactions](#social-interactions)
+  - [Real-Time Messaging](#real-time-messaging)
+  - [Notifications](#notifications)
+  - [Administration](#administration)
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Technologies Used](#-technologies-used)
+- [Prerequisites](#-prerequisites)
+- [Installation & Setup](#-installation--setup)
+- [Configuration](#-configuration)
+- [API Endpoints](#-api-endpoints)
+- [Real-Time Hub Methods](#-real-time-hub-methods)
+- [Usage Examples](#-usage-examples)
+- [Contributing](#-contributing)
+
+---
+
+## 🔭 Overview
+
+### What is Daira?
+
+Daira (Arabic for "Circle") is a comprehensive social media platform backend designed to power modern social networking applications. It provides all the essential building blocks for creating engaging social experiences, from user authentication to real-time messaging.
