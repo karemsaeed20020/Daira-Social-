@@ -10,7 +10,7 @@ namespace Daira.Domain.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
 
-        // Navigation properties
+        //Navigation properties
         public Post Post { get; set; }
         public AppUser AppUser { get; set; }
     }

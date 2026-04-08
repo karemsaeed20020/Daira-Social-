@@ -1,9 +1,11 @@
 ﻿using Daira.Application.Interfaces;
 using Daira.Application.Interfaces.Auth;
+using Daira.Application.Interfaces.CommentModule;
 using Daira.Application.Interfaces.PostModule;
 using Daira.Infrastructure.Persistence;
 using Daira.Infrastructure.Persistence.DbContext;
 using Daira.Infrastructure.Services.AuthService;
+using Daira.Infrastructure.Services.CommentService;
 using Daira.Infrastructure.Services.PostService;
 using Daira.Infrastructure.Settings;
 
@@ -92,6 +94,7 @@ namespace Daira.Infrastructure
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IPostService, PostService>();
+            services.AddScoped<ICommentService, CommentService>();
 
             // Configure email settings
             services.Configure<EmailSettings>(configuration.GetSection(EmailSettings.SectionName));
