@@ -52,3 +52,28 @@
 ### What is Daira?
 
 Daira (Arabic for "Circle") is a comprehensive social media platform backend designed to power modern social networking applications. It provides all the essential building blocks for creating engaging social experiences, from user authentication to real-time messaging.
+### Business Domain
+
+The platform operates in the **social networking domain**, enabling users to:
+- Connect with friends through follow and friendship systems
+- Share content through posts with likes and comments
+- Communicate in real-time through direct and group messaging
+- Stay informed through an intelligent notification system
+
+### Target Users
+
+- **Frontend Developers**: Building web or mobile social media applications
+- **Startups**: Looking for a robust, scalable backend foundation
+- **Enterprises**: Needing internal social networking solutions
+- **Educational Projects**: Learning Clean Architecture with real-world examples
+
+### Problem Solved
+
+Daira addresses the complexity of building social media backends by providing:
+- **Pre-built social features**: No need to reinvent common patterns
+- **Scalable architecture**: Designed for growth from day one
+- **Real-time capabilities**: Native WebSocket support for instant updates
+- **Security-first approach**: JWT authentication with refresh tokens
+- **Clean codebase**: Easy to extend and maintain
+
+---
