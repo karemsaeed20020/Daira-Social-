@@ -1,0 +1,29 @@
+﻿using System.Linq.Expressions;
+
+namespace Daira.Infrastructure.Specefication
+{
+    public class FollowerSpecification : BaseSpecefication<Follower>
+    {
+        public FollowerSpecification() : base()
+        {
+            AddIncludes();
+        }
+
+        public FollowerSpecification(Guid id) : base(f => f.Id == id)
+        {
+            AddIncludes();
+        }
+        public FollowerSpecification(Expression<Func<Follower, bool>> expression) : base(expression)
+        {
+            AddIncludes();
+        }
+
+
+
+        void AddIncludes()
+        {
+            Includes.Add(x => x.FollowerUser);
+            Includes.Add(x => x.FollowingUser);
+        }
+    }
+}

@@ -1,6 +1,7 @@
 
 using Daira.Api.Extensions;
 using Daira.Application;
+using Daira.Application.Mapping;
 using Daira.Application.Validation;
 using Daira.Infrastructure;
 using System.Text.Json.Serialization;
@@ -35,6 +36,7 @@ namespace Daira.Api
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddAuthorizeSwaggerAsync(builder.Configuration);
             builder.Services.AddApplicationServices();
+            builder.Services.AddAutoMapper(typeof(FollowerMappingProfile).Assembly);
 
             var app = builder.Build();
 
