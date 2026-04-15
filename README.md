@@ -77,3 +77,40 @@ Daira addresses the complexity of building social media backends by providing:
 - **Clean codebase**: Easy to extend and maintain
 
 ---
+
+## ✨ Key Highlights
+
+- 🔐 **Enterprise-Grade Security**: JWT authentication with access/refresh token rotation, email confirmation, and password reset flows
+- 🏗️ **Clean Architecture**: Strict separation of concerns with Domain, Application, Infrastructure, and Presentation layers
+- ⚡ **Real-Time Communication**: SignalR-powered messaging with typing indicators, read receipts, and presence detection
+- 📊 **Specification Pattern**: Flexible and reusable query specifications for complex data filtering
+- 🔄 **Unit of Work Pattern**: Transactional consistency across repository operations
+- 📧 **Email Integration**: MailKit-based email service for confirmations and notifications
+- ✅ **Input Validation**: FluentValidation for robust request validation
+- 🗺️ **Object Mapping**: AutoMapper for clean DTO transformations
+- 📝 **API Documentation**: Swagger/OpenAPI with JWT authorization support
+- 🌐 **CORS Support**: Configurable cross-origin resource sharing
+
+---
+
+## 🚀 Features
+
+### Authentication & Authorization
+
+| Feature | Description |
+|---------|-------------|
+| User Registration | Complete registration with email confirmation requirement |
+| Login/Logout | Secure authentication with JWT token generation |
+| Refresh Tokens | Silent token renewal with 7-day refresh token validity |
+| Email Confirmation | Token-based email verification flow |
+| Password Reset | Secure forgot/reset password with email tokens |
+| Resend Confirmation | Ability to resend confirmation emails |
+
+### User Management
+
+| Feature | Description |
+|---------|-------------|
+| Account Management | User profile and account settings |
+| Role-Based Access | Flexible role assignment and management |
+| User Roles Query | Retrieve roles for specific users |
+| Role CRUD | Create, read, update, and delete roles |
